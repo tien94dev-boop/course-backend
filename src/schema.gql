@@ -1,0 +1,56 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CourseModel {
+  id: ID!
+  code: String!
+  title: String!
+  description: String
+  teacherId: ID
+  classGroupId: ID
+}
+
+type ClassGroup {
+  _id: ID!
+  grade: Int!
+  name: String!
+  schoolYear: String
+}
+
+type Query {
+  courses(filter: CourseFilterInput!): [CourseModel!]!
+  course(id: ID!): CourseModel!
+  classGroups: [ClassGroup!]!
+}
+
+input CourseFilterInput {
+  name: String
+  description: String
+  teacherId: ID
+  classGroupId: ID
+}
+
+type Mutation {
+  createCourse(input: CreateCourseInput!): CourseModel!
+  updateCourse(input: UpdateCourseInput!): CourseModel!
+  deleteCourse(id: ID!): CourseModel!
+  createClassGroup(grade: Int!, name: String!, schoolYear: String): ClassGroup!
+}
+
+input CreateCourseInput {
+  title: String!
+  code: String!
+  description: String
+  teacherId: ID
+  classGroupId: ID
+}
+
+input UpdateCourseInput {
+  id: ID!
+  title: String
+  description: String
+  code: String
+  teacherId: ID
+  classGroupId: ID
+}
