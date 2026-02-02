@@ -23,8 +23,6 @@ export class CourseService {
         field: 'code',
         message: 'Course code đã tồn tại',
       });
-
-
     }
 
     if (errors.length > 0) {

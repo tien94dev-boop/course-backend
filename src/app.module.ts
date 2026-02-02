@@ -5,10 +5,20 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { join } from 'path';
 import { CourseModule } from './course/course.module';
 import { ClassGroupModule } from './class-group/class-group.module';
+import { ConfigModule, ConfigService } from '@nestjs/config'
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/course_db'),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        uri: config.get<string>('MONGO_URI'),
+      }),
+    }),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
