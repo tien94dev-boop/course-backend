@@ -120,6 +120,11 @@ type RefreshPayload {
   accessToken: String
 }
 
+type LogoutResponse {
+  success: Boolean!
+  message: String!
+}
+
 type Query {
   courses(filter: CourseFilterInput!): [Course!]!
   course(id: ID!): Course!
@@ -185,6 +190,7 @@ type Mutation {
   updateLesson(input: UpdateLessonInput!): LessonMutationResponse!
   deleteLesson(id: ID!): LessonMutationResponse!
   login(input: LoginInput!): AuthPayload!
+  logout: LogoutResponse!
   refreshToken: RefreshPayload!
 }
 
