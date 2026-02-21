@@ -3,7 +3,7 @@ import { InputType, Field, ID, Int } from '@nestjs/graphql';
 @InputType()
 export class UpdateCourseInput {
   @Field(() => ID)
-  id: string;
+  id!: string;
 
   @Field({ nullable: true })
   title?: string;
@@ -12,7 +12,7 @@ export class UpdateCourseInput {
   description?: string;
 
   @Field({ nullable: true })
-  code: string;
+  code?: string;
 
   @Field(() => ID, { nullable: true })
   teacherId?: number;

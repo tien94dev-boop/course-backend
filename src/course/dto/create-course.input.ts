@@ -3,10 +3,10 @@ import { InputType, Field, Int, ID } from '@nestjs/graphql';
 @InputType()
 export class CreateCourseInput {
   @Field()
-  title: string;
+  title!: string;
 
   @Field()
-  code: string;
+  code!: string;
 
   @Field({ nullable: true })
   description?: string;

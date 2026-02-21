@@ -1,18 +1,14 @@
 import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import { createBaseSchemaOptions } from '@/common/base-schema-options';
 
-export type CourseDocument = HydratedDocument<Course>;
+export type ChapterDocument = HydratedDocument<Chapter>;
 @ObjectType()
 @Schema(createBaseSchemaOptions())
-export class Course {
+export class Chapter {
   @Field(() => ID)
   id!: string;
-
-  @Field()
-  @Prop({ required: true })
-  code!: string;
 
   @Field({ nullable: true })
   @Prop({ required: true })
@@ -24,12 +20,11 @@ export class Course {
 
   @Field(() => ID, { nullable: true })
   @Prop({ required: true })
-  teacherId?: number;
+  courseId?: Types.ObjectId;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => Int, { nullable: true })
   @Prop({ required: true })
-  classGroupId?: number;
+  order?: number;
 }
 
-export const CourseSchema = SchemaFactory.createForClass(Course);
-CourseSchema.index({code: 1}, {unique: true})
+export const ChapterSchema = SchemaFactory.createForClass(Chapter);

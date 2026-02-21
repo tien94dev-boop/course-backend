@@ -9,11 +9,11 @@ export class ClassGroup {
 
   @Field(() => Int)
   @Prop({ required: true })
-  grade: number; // 12
+  grade: number;
 
   @Field()
   @Prop({ required: true })
-  name: string; // A2
+  name: string;
 
   @Field({ nullable: true })
   @Prop()

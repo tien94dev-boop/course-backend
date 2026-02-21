@@ -5,7 +5,7 @@ import { Model } from 'mongoose';
 import { Course } from './schemas/course.schema';
 import { CreateCourseInput } from './dto/create-course.input';
 import { UpdateCourseInput } from './dto/update-course.input';
-import { CourseFilterInput } from './dto/course.filter';
+import { CourseFilterInput } from './dto/filter-course.input';
 
 @Injectable()
 export class CourseService {
@@ -32,35 +32,34 @@ export class CourseService {
         },
       });
     }
-    console.log({errors})
     try {
       return await this.courseModel.create(input);
     } catch (error) {
       // Chốt chặn cuối cùng ở DB
-      if (error.code === 11000) {
+      if ((error as any).code === 11000) {
         throw new BadRequestException(`Course code "${input.code}" đã tồn tại`);
       }
       throw error;
     }
   }
 
-  findAll(filter: CourseFilterInput) {
-    const query: any = {};
+  async findAll(filter?: CourseFilterInput) {
+    // const query: any = {};
 
-    if (filter?.name) {
-      query.name = { $regex: filter.name, $options: 'i' };
-    }
+    // if (filter?.name) {
+    //   query.name = { $regex: filter.name, $options: 'i' };
+    // }
 
-    if (filter?.description) {
-      query.description = {
-        $regex: filter.description,
-        $options: 'i',
-      };
-    }
-    return this.courseModel.find(query);
+    // if (filter?.description) {
+    //   query.description = {
+    //     $regex: filter.description,
+    //     $options: 'i',
+    //   };
+    // }
+    return this.courseModel.find();
   }
 
-  findOne(id: string) {
+  async findOne(id: string) {
     return this.courseModel.findById(id);
   }
 
@@ -93,14 +92,14 @@ export class CourseService {
         { new: true },
       );
     } catch (error) {
-      if (error.code === 11000) {
+      if ((error as any).code === 11000) {
         throw new BadRequestException(`Course code "${code}" đã tồn tại`);
       }
       throw error;
     }
   }
 
-  remove(id: string) {
+  async remove(id: string) {
     return this.courseModel.findByIdAndDelete(id);
   }
 }
