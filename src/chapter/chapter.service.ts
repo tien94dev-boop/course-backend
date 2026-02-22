@@ -8,6 +8,7 @@ import { FilterChapterInput } from './dto/filter-chapter.input';
 import { CreateChapterInput } from './dto/create-chapter.input';
 import { UpdateChapterInput } from './dto/update-chapter.input';
 import { ChapterMutationResponse } from './models/chapter.models';
+import { buildFilter } from '@/utils/buildFilter';
 @Injectable()
 export class ChapterService extends BaseCrudService<ChapterDocument> {
   constructor(
@@ -17,13 +18,14 @@ export class ChapterService extends BaseCrudService<ChapterDocument> {
   ) {
     super(chapterModel, pubSub, 'chapter');
   }
-  async findAll( {filter }:{filter: FilterChapterInput | null | undefined}) {
-    return this.chapterModel.find();
+  async findAll({ filters }:{filters: any}) {
+    console.log({filters})
+    return this.chapterModel.find(filters);
   }
   async findOne(id: string) {
     return this.chapterModel.findById(id);
   }
-async create(input: CreateChapterInput): Promise<CrudResponse<ChapterDocument>> {
+async create(input: any): Promise<CrudResponse<ChapterDocument>> {
   try {
     if (!input.title) {
       return {

@@ -1,49 +1,60 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Course } from './schemas/course.schema';
+import { Course, CourseDocument } from './schemas/course.schema';
 import { CreateCourseInput } from './dto/create-course.input';
 import { UpdateCourseInput } from './dto/update-course.input';
 import { CourseFilterInput } from './dto/filter-course.input';
+import {
+  BaseCrudService,
+  CrudResponse,
+} from '@/common/services/base-crud.service';
+import { PubSub } from 'graphql-subscriptions';
 
 @Injectable()
-export class CourseService {
+export class CourseService extends BaseCrudService<CourseDocument> {
   constructor(
     @InjectModel(Course.name)
-    private courseModel: Model<Course>,
-  ) {}
+    private courseModel: Model<CourseDocument>,
+    @Inject('PUB_SUB') pubSub: PubSub,
+  ) {
+    super(courseModel, pubSub, 'lesson');
+  }
 
-  async create(input: CreateCourseInput) {
-    // Check logic nghiệp vụ (UX)
+  async create(
+    input: CreateCourseInput,
+  ): Promise<CrudResponse<CourseDocument>> {
     const errors: { field: string; message: string }[] = [];
-    const existed = await this.courseModel.findOne({ code: input.code });
+    let args = { ...input, code: new Date().getTime().toString() };
+    const existed = await this.courseModel.findOne({ code: args.code });
     if (existed) {
-      errors.push({
-        field: 'code',
-        message: 'Course code đã tồn tại',
-      });
+      return {
+        success: false,
+        message: 'Code khoá học đã tồn tại',
+        data: null,
+      };
     }
 
     if (errors.length > 0) {
-      throw new GraphQLError('Validation failed', {
-        extensions: {
-          validationErrors: errors,
-        },
-      });
+      return {
+        success: false,
+        message: 'Có lỗi không xác định!!!',
+        data: null,
+      };
     }
     try {
-      return await this.courseModel.create(input);
-    } catch (error) {
-      // Chốt chặn cuối cùng ở DB
-      if ((error as any).code === 11000) {
-        throw new BadRequestException(`Course code "${input.code}" đã tồn tại`);
-      }
-      throw error;
+      return await super.create(input);
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Không thể tạo bài học mới',
+        data: null,
+      };
     }
   }
 
-  async findAll(filter?: CourseFilterInput) {
+  async findAll({ filters }: { filters?: any }) {
     // const query: any = {};
 
     // if (filter?.name) {
@@ -56,46 +67,47 @@ export class CourseService {
     //     $options: 'i',
     //   };
     // }
-    return this.courseModel.find();
+    return this.courseModel.find(filters);
   }
 
   async findOne(id: string) {
     return this.courseModel.findById(id);
   }
 
-  async update(input: UpdateCourseInput) {
+  async update(
+    input: UpdateCourseInput,
+  ): Promise<CrudResponse<CourseDocument>> {
     const { id, code, ...updateData } = input;
 
-    // 1. Check tồn tại course
     const course = await this.courseModel.findById(id);
     if (!course) {
       throw new BadRequestException('Course không tồn tại');
     }
 
-    // 2. Check trùng code (UX)
     if (code) {
       const existed = await this.courseModel.findOne({
         code,
-        id: { $ne: id }, // ❗ loại trừ chính nó
+        id: { $ne: id },
       });
 
       if (existed) {
-        throw new BadRequestException(`Course code "${code}" đã tồn tại`);
+        return {
+          success: false,
+          message: 'Course Exist!!!',
+          data: null,
+        };
       }
     }
 
     // 3. Update + chốt DB
     try {
-      return await this.courseModel.findByIdAndUpdate(
-        id,
-        { code, ...updateData },
-        { new: true },
-      );
-    } catch (error) {
-      if ((error as any).code === 11000) {
-        throw new BadRequestException(`Course code "${code}" đã tồn tại`);
-      }
-      throw error;
+      return await super.update(input);
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Update Fail!!!',
+        data: null,
+      };
     }
   }
 

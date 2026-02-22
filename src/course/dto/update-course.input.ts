@@ -17,6 +17,6 @@ export class UpdateCourseInput {
   @Field(() => ID, { nullable: true })
   teacherId?: number;
 
-  @Field(() => ID, { nullable: true })
-  classGroupId?: number;
+  // @Field(() => ID, { nullable: true })
+  // classGroupId?: number;
 }

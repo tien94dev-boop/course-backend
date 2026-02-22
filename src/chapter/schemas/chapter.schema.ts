@@ -18,9 +18,13 @@ export class Chapter {
   @Prop({ required: true })
   description?: string;
 
-  @Field(() => ID, { nullable: true })
+  @Field(() => ID)
   @Prop({ required: true })
-  courseId?: Types.ObjectId;
+  courseId!: Types.ObjectId;
+
+  @Field(() => ID)
+  @Prop({ required: true })
+  teacherId!: Types.ObjectId;
 
   @Field(() => Int, { nullable: true })
   @Prop({ required: true })

@@ -10,4 +10,7 @@ export class FilterChapterInput {
 
   @Field(() => String, { nullable: true })
   courseId!: string;
+
+   @Field(() => String, { nullable: true })
+  teacherId!: string;
 }

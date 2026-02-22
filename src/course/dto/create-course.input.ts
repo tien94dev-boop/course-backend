@@ -12,8 +12,8 @@ export class CreateCourseInput {
   description?: string;
 
   @Field(() => ID, { nullable: true })
-  teacherId?: number;
+  teacherId!: string;
 
-  @Field(() => ID, { nullable: true })
-  classGroupId?: number;
+  // @Field(() => ID, { nullable: true })
+  // classGroupId?: number;
 }

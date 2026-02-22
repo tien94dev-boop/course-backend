@@ -11,6 +11,6 @@ export class CourseFilterInput {
   @Field(() => ID, { nullable: true })
   teacherId?: number;
 
-  @Field(() => ID, { nullable: true })
-  classGroupId?: number;
+  // @Field(() => ID, { nullable: true })
+  // classGroupId?: number;
 }

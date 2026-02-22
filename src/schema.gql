@@ -8,7 +8,12 @@ type Course {
   title: String
   description: String
   teacherId: ID
-  classGroupId: ID
+}
+
+type CourseMutationResponse {
+  success: Boolean!
+  message: String
+  data: Course
 }
 
 type ClassGroup {
@@ -75,7 +80,8 @@ type Chapter {
   id: ID!
   title: String
   description: String
-  courseId: ID
+  courseId: ID!
+  teacherId: ID!
   order: Int
 }
 
@@ -154,19 +160,19 @@ input CourseFilterInput {
   name: String
   description: String
   teacherId: ID
-  classGroupId: ID
 }
 
 input FilterChapterInput {
   title: String
   description: String
   courseId: String
+  teacherId: String
 }
 
 type Mutation {
-  createCourse(input: CreateCourseInput!): Course!
-  updateCourse(input: UpdateCourseInput!): Course!
-  deleteCourse(id: ID!): Course!
+  createCourse(input: CreateCourseInput!): CourseMutationResponse!
+  updateCourse(input: UpdateCourseInput!): CourseMutationResponse!
+  deleteCourse(id: ID!): CourseMutationResponse!
   createClassGroup(grade: Int!, name: String!, schoolYear: String): ClassGroup!
   aiGenerateQuestion(input: AiGenerateInput!): AiGenerateResponse!
 
@@ -199,7 +205,6 @@ input CreateCourseInput {
   code: String!
   description: String
   teacherId: ID
-  classGroupId: ID
 }
 
 input UpdateCourseInput {
@@ -208,7 +213,6 @@ input UpdateCourseInput {
   description: String
   code: String
   teacherId: ID
-  classGroupId: ID
 }
 
 input AiGenerateInput {

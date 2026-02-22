@@ -6,11 +6,7 @@ import { RefreshPayload } from '@/auth/models/refresh-payload.model';
 import { GqlAuthGuard } from '@/auth/gql-auth.guard';
 import { Inject, UseGuards } from '@nestjs/common';
 import { LogoutResponse } from './models/logout.reponsive';
-
-export interface GqlContext {
-  req: any;
-  res: any;
-}
+import type { GqlContext } from '@/common/gql-context';
 
 @Resolver()
 export class AuthResolver {
@@ -61,8 +57,8 @@ export class AuthResolver {
   async refreshToken(@Context() context: GqlContext) {
     const refreshToken = context.req.cookies?.refreshToken;
 
-    console.log('Refresh token nhận được:', refreshToken);
-    console.log('User từ guard:', context.req.user); // Log này để kiểm tra
+    // console.log('Refresh token nhận được:', refreshToken);
+    // console.log('User từ guard:', context.req.user);
 
     if (!refreshToken) {
       return { success: false, message: 'Không tìm thấy refresh token' };

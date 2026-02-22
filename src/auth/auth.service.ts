@@ -71,13 +71,13 @@ export class AuthService {
   }
 
   async refreshAccessToken(refreshToken: string) {
-    console.log('Verify refresh token:', refreshToken);
+    // console.log('Verify refresh token:', refreshToken);
 
     try {
       const payload = this.jwtService.verify(refreshToken, {
         secret: process.env.JWT_REFRESH_SECRET,
       });
-      console.log('Payload verify thành công:', payload);
+      // console.log('Payload verify thành công:', payload);
 
       const user = await this.userModel
         .findById(payload.sub)

@@ -5,16 +5,20 @@ import {
   Args,
   ID,
   Subscription,
+  Context,
 } from '@nestjs/graphql';
 import { ChapterService } from './chapter.service';
 import { Chapter } from './schemas/chapter.schema';
-import { Inject } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import { PubSub } from 'graphql-subscriptions';
 import { ChangedPayload } from '@/common/dto/changed.payload';
 import { CreateChapterInput } from './dto/create-chapter.input';
 import { UpdateChapterInput } from './dto/update-chapter.input';
 import { FilterChapterInput } from './dto/filter-chapter.input';
 import { ChapterMutationResponse } from './models/chapter.models';
+import { GqlAuthGuard } from '@/auth/gql-auth.guard';
+import type { GqlContext } from '@/common/gql-context';
+import { buildFilter } from '@/utils/buildFilter';
 
 @Resolver()
 export class ChapterResolver {
@@ -29,16 +33,19 @@ export class ChapterResolver {
   ) {
     return this.pubSub.asyncIterableIterator('chapterChanged');
   }
-
+  @UseGuards(GqlAuthGuard)
   @Query(() => [Chapter], {
     name: 'chapters',
     description: 'Lấy danh sách toàn bộ chương học',
   })
   async chapters(
+    @Context() { req, res }: GqlContext,
     @Args('filter', { type: () => FilterChapterInput, nullable: true })
     filter?: FilterChapterInput,
   ): Promise<Chapter[]> {
-    const chapters = await this.chapterService.findAll({ filter });
+    const userId = req.user.userId;
+    const filters = buildFilter({ ...filter, teacherId: userId });
+    const chapters = await this.chapterService.findAll({ filters });
     return chapters;
   }
 
@@ -54,17 +61,25 @@ export class ChapterResolver {
     return chapter;
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => ChapterMutationResponse, {
     description: 'Tạo mới một chương học vào hệ thống',
   })
   async createChapter(
+    @Context() { req, res }: GqlContext,
     @Args('input') input: CreateChapterInput,
   ): Promise<ChapterMutationResponse> {
-    const rs = await this.chapterService.create(input);
+    const userId = req.user.userId;
+    const rs = await this.chapterService.create({
+      ...input,
+      teacherId: userId,
+    });
     return rs;
   }
 
-  @Mutation(() => ChapterMutationResponse, { description: 'Cập nhật thông tin một chương học' })
+  @Mutation(() => ChapterMutationResponse, {
+    description: 'Cập nhật thông tin một chương học',
+  })
   async updateChapter(
     @Args('input') input: UpdateChapterInput,
   ): Promise<ChapterMutationResponse> {

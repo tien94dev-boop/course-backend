@@ -16,5 +16,5 @@ export class CreateChapterInput {
   @Field(() => String, { nullable: true })
   @IsString({ message: 'ID khóa học phải là chuỗi ký tự' })
   @IsOptional()
-  readonly courseId?: string;
+  readonly courseId!: string;
 }
