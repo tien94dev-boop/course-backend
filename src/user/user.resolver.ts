@@ -5,6 +5,7 @@ import {
   Args,
   ID,
   Subscription,
+  Context,
 } from '@nestjs/graphql';
 import { Inject, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -16,6 +17,9 @@ import { PubSub } from 'graphql-subscriptions';
 import { ChangedPayload } from '../common/dto/changed.payload';
 import { GqlAuthGuard } from '@/auth/gql-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { FilterUserInput } from "@/user/dto/filter-user.input"
+import type { GqlContext } from '@/common/gql-context';
+import { buildFilter } from '@/utils/buildFilter';
 
 @Resolver(() => User)
 export class UserResolver {
@@ -38,12 +42,18 @@ export class UserResolver {
     return this.userService.findOne(user.userId);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Query(() => [User], {
     name: 'allUsers',
     description: 'Lấy danh sách toàn bộ sinh viên',
   })
-  async allUsers(): Promise<User[]> {
-    const users = await this.userService.findAll();
+  async allUsers(
+    @Context() { req, res }: GqlContext,
+    @Args("filter") filter: FilterUserInput
+  ): Promise<User[]> {
+    const userId = req.user.userId;
+    const filters = buildFilter(filter);
+    const users = await this.userService.findAll({filters});
     return users;
   }
 

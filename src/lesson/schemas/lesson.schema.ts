@@ -4,6 +4,7 @@ import { HydratedDocument, Types } from 'mongoose';
 import { createBaseSchemaOptions } from '@/common/base-schema-options';
 import { QuestionDetail, QuestionDetailSchema } from '@/ai/models/ai-generate.model';
 import { LessonType } from '../enum/lesson.emun';
+import { QuestionTypeObject } from '../models/questionTypeObject.model';
 
 export type LessonDocument = HydratedDocument<Lesson>;
 @ObjectType()
@@ -33,9 +34,17 @@ export class Lesson {
   @Prop({ type: Types.ObjectId, required: true })
   chapterId!: Types.ObjectId;
 
+  @Field(() => ID, { nullable: true })
+  @Prop({ type: Types.ObjectId, required: true })
+  teacherId!: Types.ObjectId;
+
   @Field(() => LessonType)
   @Prop({ required: true, enum: LessonType })
   type!: LessonType;
+
+  @Field(() => [QuestionTypeObject], { nullable: true })
+  @Prop({ required: false })
+  questionTypeObjects?: QuestionTypeObject[];
 
   @Field({ nullable: true })
   @Prop({ required: false })

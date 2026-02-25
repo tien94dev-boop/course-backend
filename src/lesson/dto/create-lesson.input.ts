@@ -43,6 +43,9 @@ export class CreateLessonInput {
 
   @Field(() => [QuestionDetailInput], { nullable: true })
   questions!: QuestionDetailInput[];
+
+  @Field(()=>[QuestionTypeObjectInput], { nullable: true })
+  questionTypeObjects?: QuestionTypeObjectInput[]
 }
 
 @InputType()
@@ -59,7 +62,6 @@ export class QuestionDetailInput {
   @Field(() => QuestionType)
   questionType!: QuestionType;
 }
-
 @InputType()
 export class MCOptionInput {
   @Field({ nullable: true })
@@ -67,4 +69,13 @@ export class MCOptionInput {
 
   @Field({ nullable: true })
   description?: string;
+}
+
+@InputType()
+export class QuestionTypeObjectInput {
+  @Field({ nullable: true })
+  type!: string;
+
+  @Field({ nullable: true })
+  numberOfQuestions!: number;
 }

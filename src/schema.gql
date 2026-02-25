@@ -91,6 +91,12 @@ type ChapterMutationResponse {
   data: Chapter
 }
 
+type QuestionTypeObject {
+  id: ID!
+  type: QuestionType
+  numberOfQuestions: Float
+}
+
 type Lesson {
   id: ID!
   questions: [QuestionDetail!]
@@ -98,13 +104,16 @@ type Lesson {
   description: String
   content: String
   chapterId: ID
+  teacherId: ID
   type: LessonType!
+  questionTypeObjects: [QuestionTypeObject!]
   link: String
 }
 
 enum LessonType {
   TEXT
   FILE
+  EXERCISE
 }
 
 type LessonMutationResponse {
@@ -138,7 +147,7 @@ type Query {
   me: User!
 
   """Lấy danh sách toàn bộ sinh viên"""
-  allUsers: [User!]!
+  allUsers(filter: FilterUserInput!): [User!]!
 
   """Lấy thông tin chi tiết một sinh viên"""
   getUser(id: ID!): User!
@@ -150,7 +159,7 @@ type Query {
   chapter(id: ID!): Chapter!
 
   """Lấy danh sách toàn bộ bài học"""
-  allLessons: [Lesson!]!
+  allLessons(filter: FilterLessonInput): [Lesson!]!
 
   """Lấy thông tin chi tiết một bài học"""
   getLesson(id: ID!): Lesson!
@@ -162,10 +171,25 @@ input CourseFilterInput {
   teacherId: ID
 }
 
+input FilterUserInput {
+  role: UserRole!
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
 input FilterChapterInput {
   title: String
   description: String
   courseId: String
+  teacherId: String
+}
+
+input FilterLessonInput {
+  chapterId: String
   teacherId: String
 }
 
@@ -236,12 +260,6 @@ input CreateUserInput {
   role: UserRole!
 }
 
-enum UserRole {
-  STUDENT
-  TEACHER
-  ADMIN
-}
-
 input UpdateUserInput {
   name: String
   code: String
@@ -274,6 +292,7 @@ input CreateLessonInput {
   type: LessonType
   link: String
   questions: [QuestionDetailInput!]
+  questionTypeObjects: [QuestionTypeObjectInput!]
 }
 
 input QuestionDetailInput {
@@ -288,6 +307,11 @@ input MCOptionInput {
   description: String
 }
 
+input QuestionTypeObjectInput {
+  type: String
+  numberOfQuestions: Float
+}
+
 input UpdateLessonInput {
   title: String
   description: String
@@ -297,6 +321,7 @@ input UpdateLessonInput {
   type: LessonType
   link: String
   questions: [QuestionDetailInput!]
+  questionTypeObjects: [QuestionTypeObjectInput!]
   id: ID!
 }
 

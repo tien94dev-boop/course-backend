@@ -19,7 +19,6 @@ export class ChapterService extends BaseCrudService<ChapterDocument> {
     super(chapterModel, pubSub, 'chapter');
   }
   async findAll({ filters }:{filters: any}) {
-    console.log({filters})
     return this.chapterModel.find(filters);
   }
   async findOne(id: string) {

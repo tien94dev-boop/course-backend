@@ -82,8 +82,8 @@ export class UserService extends BaseCrudService<UserDocument> {
       };
     }
   }
-  async findAll(): Promise<UserDocument[]> {
-    return this.userModel.find().exec();
+  async findAll({ filters }: { filters: any }): Promise<UserDocument[]> {
+    return this.userModel.find(filters);
   }
   async findOne(id: string): Promise<UserDocument> {
     const user = await this.userModel.findById(id).exec();
