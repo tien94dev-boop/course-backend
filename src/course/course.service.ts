@@ -11,12 +11,14 @@ import {
   CrudResponse,
 } from '@/common/services/base-crud.service';
 import { PubSub } from 'graphql-subscriptions';
+import { UserDocument } from '@/user/schemas/user.schema';
 
 @Injectable()
 export class CourseService extends BaseCrudService<CourseDocument> {
   constructor(
     @InjectModel(Course.name)
     private courseModel: Model<CourseDocument>,
+    private userModel: Model<UserDocument>,
     @Inject('PUB_SUB') pubSub: PubSub,
   ) {
     super(courseModel, pubSub, 'lesson');
@@ -67,7 +69,12 @@ export class CourseService extends BaseCrudService<CourseDocument> {
     //     $options: 'i',
     //   };
     // }
-    return this.courseModel.find(filters);
+    // return this.courseModel.find(filters);
+    if("teacherId" in filters ){
+      return this.courseModel.find(filters);
+    }
+    return this.courseModel.find()
+    
   }
 
   async findOne(id: string) {

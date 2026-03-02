@@ -6,6 +6,8 @@ import {
   ID,
   Subscription,
   Context,
+  ResolveField,
+  Parent,
 } from '@nestjs/graphql';
 import { Lesson } from './schemas/lesson.schema';
 import { LessonService } from './lesson.service';
@@ -19,13 +21,40 @@ import { GqlAuthGuard } from '@/auth/gql-auth.guard';
 import type { GqlContext } from '@/common/gql-context';
 import { FilterLessonInput } from './dto/filter-lesson.input';
 import { buildFilter } from '@/utils/buildFilter';
+import {
+  LessonStudent,
+  LessonStudentDocument,
+} from '@/lessonStudent/schemas/lesson-student.schema';
+import { Model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
+import { User, UserDocument } from '@/user/schemas/user.schema';
+import { ObjectId } from 'mongodb';
 
 @Resolver(() => Lesson)
 export class LessonResolver {
   constructor(
     private readonly lessonService: LessonService,
+    @InjectModel(LessonStudent.name)
+    private lessonStudentModel: Model<LessonStudentDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject('PUB_SUB') private readonly pubSub: PubSub,
   ) {}
+
+  @ResolveField(() => LessonStudent)
+  async lessonStudent(
+    @Parent() lesson: Lesson,
+    @Context() { req, res }: GqlContext,
+  ) {
+    const userId = req.user.userId;
+    const user = await this.userModel.findOne({ _id: new ObjectId(userId) });
+    if(user?.role === "STUDENT"){
+       return this.lessonStudentModel.findOne({
+      lessonId: new ObjectId(lesson.id),
+      studentId: new ObjectId(user._id)
+    });
+    }
+    return null
+  }
   @Subscription(() => ChangedPayload, { name: 'lessonChanged' })
   lessonChanged(
     @Args('operation', { type: () => String, nullable: true })
@@ -44,10 +73,11 @@ export class LessonResolver {
     filter?: FilterLessonInput,
   ): Promise<Lesson[]> {
     const userId = req.user.userId;
-    const filters = buildFilter({ ...filter, teacherId: userId });
-    const lessons = await this.lessonService.findAll({filters});
+    const filters = buildFilter({ ...filter });
+    const lessons = await this.lessonService.findAll({ filters });
     return lessons;
   }
+  @UseGuards(GqlAuthGuard)
   @Query(() => Lesson, {
     name: 'getLesson',
     description: 'Lấy thông tin chi tiết một bài học',
@@ -58,16 +88,17 @@ export class LessonResolver {
   @Mutation(() => LessonMutationResponse, {
     description: 'Tạo mới một bài học vào hệ thống',
   })
-
   @UseGuards(GqlAuthGuard)
   async createLesson(
-      @Context() { req, res }: GqlContext,
+    @Context() { req, res }: GqlContext,
     @Args('input') input: CreateLessonInput,
   ): Promise<LessonMutationResponse> {
     try {
-        const userId = req.user.userId;
-      const result = await this.lessonService.create({...input, teacherId: userId});
-      console.log({ result });
+      const userId = req.user.userId;
+      const result = await this.lessonService.create({
+        ...input,
+        teacherId: userId,
+      });
       return result;
     } catch (error) {
       return {

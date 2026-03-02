@@ -84,15 +84,15 @@ export class AuthService {
         .select('+refreshToken');
 
       if (!user || !user.refreshToken) {
-        console.log('User không tồn tại hoặc không có refreshToken trong DB');
+        // console.log('User không tồn tại hoặc không có refreshToken trong DB');
         throw new UnauthorizedException('Invalid refresh token');
       }
 
       const isMatch = await bcrypt.compare(refreshToken, user.refreshToken);
-      console.log('Refresh token match DB hash?', isMatch);
+      // console.log('Refresh token match DB hash?', isMatch);
 
       if (!isMatch) {
-        console.log('Hash không khớp');
+        // console.log('Hash không khớp');
         throw new UnauthorizedException('Invalid refresh token');
       }
 
@@ -101,7 +101,7 @@ export class AuthService {
         { secret: process.env.JWT_ACCESS_SECRET, expiresIn: '15m' },
       );
     } catch (err: any) {
-      console.log('Verify error:', err.message);
+      // console.log('Verify error:', err.message);
       throw new UnauthorizedException('Invalid refresh token');
     }
   }

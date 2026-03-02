@@ -5,6 +5,7 @@ import { createBaseSchemaOptions } from '@/common/base-schema-options';
 import { QuestionDetail, QuestionDetailSchema } from '@/ai/models/ai-generate.model';
 import { LessonType } from '../enum/lesson.emun';
 import { QuestionTypeObject } from '../models/questionTypeObject.model';
+import { LessonStudent } from '@/lessonStudent/schemas/lesson-student.schema';
 
 export type LessonDocument = HydratedDocument<Lesson>;
 @ObjectType()
@@ -49,6 +50,9 @@ export class Lesson {
   @Field({ nullable: true })
   @Prop({ required: false })
   link?: string;
+
+  @Field(()=>LessonStudent, {nullable: true})
+  lessonStudent?: LessonStudent
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);

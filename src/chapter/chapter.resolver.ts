@@ -19,11 +19,22 @@ import { ChapterMutationResponse } from './models/chapter.models';
 import { GqlAuthGuard } from '@/auth/gql-auth.guard';
 import type { GqlContext } from '@/common/gql-context';
 import { buildFilter } from '@/utils/buildFilter';
+import {
+  CourseStudent,
+  CourseStudentDocument,
+} from '@/courseStudent/schemas/course-student.schema';
+import { User, UserDocument } from '@/user/schemas/user.schema';
+import { Model } from 'mongoose';
+import { ObjectId } from 'mongodb';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Resolver()
 export class ChapterResolver {
   constructor(
     private readonly chapterService: ChapterService,
+    @InjectModel('CourseStudent')
+    private courseStudentModel: Model<CourseStudentDocument>,
+    @InjectModel('User') private userModel: Model<UserDocument>,
     @Inject('PUB_SUB') private readonly pubSub: PubSub,
   ) {}
   @Subscription(() => ChangedPayload, { name: 'chapterChanged' })
@@ -41,10 +52,34 @@ export class ChapterResolver {
   async chapters(
     @Context() { req, res }: GqlContext,
     @Args('filter', { type: () => FilterChapterInput, nullable: true })
-    filter?: FilterChapterInput,
+    filter: FilterChapterInput,
   ): Promise<Chapter[]> {
     const userId = req.user.userId;
-    const filters = buildFilter({ ...filter, teacherId: userId });
+    const user = await this.userModel.findOne({ _id: new ObjectId(userId) });
+    if (!user) {
+      return [];
+    }
+    let filters = {};
+    if (user.role === 'TEACHER') {
+      filters = buildFilter({ ...filter, teacherId: userId });
+      const chapters = await this.chapterService.findAll({ filters });
+      return chapters;
+    }
+    if (user.role === 'STUDENT') {
+      const { courseId } = filter;
+      const courseStudents = await this.courseStudentModel.find({
+        courseId: courseId,
+      });
+      if (courseStudents.length === 0) {
+        return [];
+      }
+      const csIndex = courseStudents.findIndex(
+        (cs: CourseStudent) => cs.studentId.toString() === user._id.toString(),
+      );
+      if (csIndex > -1) {
+        filters = buildFilter({ ...filter });
+      }
+    }
     const chapters = await this.chapterService.findAll({ filters });
     return chapters;
   }

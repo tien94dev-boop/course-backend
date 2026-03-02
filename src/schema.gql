@@ -8,12 +8,34 @@ type Course {
   title: String
   description: String
   teacherId: ID
+  students: [User!]!
 }
+
+type User {
+  id: ID!
+  name: String!
+  code: String!
+  email: String!
+  dateOfBirth: DateTime!
+  role: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type CourseMutationResponse {
   success: Boolean!
   message: String
   data: Course
+}
+
+type CourseStudent {
+  id: ID!
+  studentId: ID!
+  courseId: ID!
+  students: [User!]
 }
 
 type ClassGroup {
@@ -32,7 +54,7 @@ type MCOption {
 type QuestionDetail {
   id: ID!
   question: String!
-  answer: String!
+  answer: String
   mcOptions: [MCOption!]
   questionType: QuestionType!
 }
@@ -45,20 +67,6 @@ enum QuestionType {
 type AiGenerateResponse {
   questions: [QuestionDetail!]
 }
-
-type User {
-  id: ID!
-  name: String!
-  code: String!
-  email: String!
-  dateOfBirth: DateTime!
-  role: String!
-}
-
-"""
-A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
-"""
-scalar DateTime
 
 type UserMutationResponse {
   success: Boolean!
@@ -97,6 +105,21 @@ type QuestionTypeObject {
   numberOfQuestions: Float
 }
 
+type AnswerDetails {
+  id: ID!
+  questionId: ID!
+  studentAnswer: String!
+  evaluate: String
+  score: Float
+}
+
+type LessonStudent {
+  id: ID!
+  answers: [AnswerDetails!]
+  studentId: ID
+  lessonId: ID
+}
+
 type Lesson {
   id: ID!
   questions: [QuestionDetail!]
@@ -108,6 +131,7 @@ type Lesson {
   type: LessonType!
   questionTypeObjects: [QuestionTypeObject!]
   link: String
+  lessonStudent: LessonStudent
 }
 
 enum LessonType {
@@ -120,6 +144,12 @@ type LessonMutationResponse {
   success: Boolean!
   message: String
   data: Lesson
+}
+
+type CourseStudentMutationResponse {
+  success: Boolean!
+  message: String
+  data: CourseStudent
 }
 
 type AuthPayload {
@@ -140,8 +170,15 @@ type LogoutResponse {
   message: String!
 }
 
+type LessonStudentMutationResponse {
+  success: Boolean!
+  message: String
+  data: LessonStudent
+}
+
 type Query {
   courses(filter: CourseFilterInput!): [Course!]!
+  studentsByCourse(courseId: ID!): [User!]!
   course(id: ID!): Course!
   classGroups: [ClassGroup!]!
   me: User!
@@ -163,6 +200,12 @@ type Query {
 
   """Lấy thông tin chi tiết một bài học"""
   getLesson(id: ID!): Lesson!
+
+  """Lấy danh sách toàn bộ bài học"""
+  allLessonStudents(filter: FilterLessonStudentInput): [LessonStudent!]!
+
+  """Lấy thông tin chi tiết một bài học"""
+  getLessonStudent(id: ID!): LessonStudent!
 }
 
 input CourseFilterInput {
@@ -191,6 +234,11 @@ input FilterChapterInput {
 input FilterLessonInput {
   chapterId: String
   teacherId: String
+}
+
+input FilterLessonStudentInput {
+  studentId: String
+  lessonId: String
 }
 
 type Mutation {
@@ -222,6 +270,14 @@ type Mutation {
   login(input: LoginInput!): AuthPayload!
   logout: LogoutResponse!
   refreshToken: RefreshPayload!
+  registerCourse(input: RegisterCourseInput!): CourseStudentMutationResponse!
+
+  """Tạo mới một bài học vào hệ thống"""
+  createLessonStudent(input: CreateLessonStudentInput!): LessonStudentMutationResponse!
+
+  """Cập nhật thông tin một bài học"""
+  updateLessonStudent(input: UpdateLessonStudentInput!): LessonStudentMutationResponse!
+  deleteStudentLesson(id: ID!): LessonStudentMutationResponse!
 }
 
 input CreateCourseInput {
@@ -330,8 +386,29 @@ input LoginInput {
   password: String!
 }
 
+input RegisterCourseInput {
+  courseId: String!
+}
+
+input CreateLessonStudentInput {
+  answers: [AnswerDetailInput!]
+  lessonId: ID
+}
+
+input AnswerDetailInput {
+  questionId: String!
+  studentAnswer: String!
+}
+
+input UpdateLessonStudentInput {
+  answers: [AnswerDetailInput!]
+  lessonId: ID
+  id: ID!
+}
+
 type Subscription {
   userChanged(operation: String): ChangedPayload!
   chapterChanged(operation: String): ChangedPayload!
   lessonChanged(operation: String): ChangedPayload!
+  lessonStudentChanged(operation: String): ChangedPayload!
 }

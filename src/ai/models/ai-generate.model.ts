@@ -4,9 +4,10 @@ import { HydratedDocument, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { createBaseSchemaOptions } from '@/common/base-schema-options';
 
-@Schema(createBaseSchemaOptions({timestamps: false}))
+@Schema(createBaseSchemaOptions({ timestamps: false }))
 @ObjectType()
 export class MCOption {
+  _id!: Types.ObjectId;
   @Field(() => ID)
   id?: Types.ObjectId;
 
@@ -19,15 +20,12 @@ export class MCOption {
   description?: string;
 }
 
+export const MCOptionSchema = SchemaFactory.createForClass(MCOption);
 
-export const MCOptionSchema =
-  SchemaFactory.createForClass(MCOption);
-
-
-@Schema(createBaseSchemaOptions({timestamps: false}))
+@Schema(createBaseSchemaOptions({ timestamps: false }))
 @ObjectType()
 export class QuestionDetail {
-
+  _id!: Types.ObjectId;
   @Field(() => ID)
   id?: Types.ObjectId;
 
@@ -35,7 +33,7 @@ export class QuestionDetail {
   @Prop({ required: true })
   question!: string;
 
-  @Field()
+  @Field({ nullable: true })
   @Prop({ required: true })
   answer!: string;
 
@@ -50,7 +48,6 @@ export class QuestionDetail {
 
 export const QuestionDetailSchema =
   SchemaFactory.createForClass(QuestionDetail);
-
 
 @ObjectType()
 export class AiGenerateResponse {

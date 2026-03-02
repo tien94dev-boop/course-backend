@@ -17,11 +17,9 @@ export class AiResolver {
         const rs = await this.aiService.generateRawText({ content, language, questionTypes })
 
         const questions = JSON.parse(rs)
-        console.log('Generated questions:', questions);
         return {
             questions: questions.map((question: any)=>{
                 const mcOptions = (question?.mcOption || []).map((option: any)=>{
-                    console.log('Processing option:', option);
                     return {
                         id: new ObjectId().toString(),
                         ...option

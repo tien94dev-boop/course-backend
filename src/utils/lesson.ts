@@ -1,8 +1,9 @@
 
 import { Types } from 'mongoose';
 import { castObjectIdsInObject } from '@/common/utils/castObjectIds';
+import { LessonStudent } from '@/lessonStudent/schemas/lesson-student.schema'
+import { Lesson } from '@/lesson/schemas/lesson.schema'
 export function generateLessonInput(input: any) {
-  console.log({ input, id: new Types.ObjectId()  });
   const { questions, chapterId } = input;
   const genQuestions = questions.map((question: any) => {
     const { mcOptions, questionType } = question;
@@ -19,6 +20,5 @@ export function generateLessonInput(input: any) {
       mcOptions: genMCOptions,
     };
   });
-  console.log({genQuestions})
   return { ...input, questions: genQuestions };
 }

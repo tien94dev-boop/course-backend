@@ -12,8 +12,24 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { PubSubModule } from './common/pubsub/pubsub.module';
 import { Schema } from 'mongoose';  // Giữ import này
 import { LessonModule } from './lesson/lesson.module';
+import { CourseStudentModule } from './courseStudent/course-student.module';
 import { AuthModule } from './auth/auth.module';
+import { LessonStudentModule } from'./lessonStudent/lesson-student.module';
+// import * as mongoose from 'mongoose';
 
+// const originalSetOptions = mongoose.Query.prototype.setOptions;
+
+// mongoose.Query.prototype.setOptions = function (options: any, overwrite?: boolean) {
+//   // Gọi hàm gốc trước
+//   originalSetOptions.apply(this, arguments);
+
+//   // Nếu chưa set lean (lean == null hoặc undefined), thì tự động set lean: true
+//   if (this.mongooseOptions().lean == null) {
+//     this.mongooseOptions({ lean: true });
+//   }
+
+//   return this;
+// };
 
 @Module({
   imports: [
@@ -46,7 +62,9 @@ import { AuthModule } from './auth/auth.module';
     ChapterModule,
     PubSubModule,
     LessonModule,
-    AuthModule
+    AuthModule,
+    CourseStudentModule,
+    LessonStudentModule
   ],
 })
 export class AppModule {}

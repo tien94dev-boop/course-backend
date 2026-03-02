@@ -59,9 +59,9 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
 
   async update(input: any): Promise<CrudResponse<T>> {
     try {
-      const { id, ...rest } = input;
+      const { id, _id, ...rest } = input;
 
-      if (!id) {
+      if (!id && !_id) {
         return {
           success: false,
           message: 'ID là bắt buộc để cập nhật',
@@ -71,7 +71,7 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
 
       const castRest = castObjectIdsInObject(rest);
       const updated = await this.model
-        .findByIdAndUpdate(id, castRest, { new: true, runValidators: true })
+        .findByIdAndUpdate(id || _id, castRest, { new: true, runValidators: true })
         .exec();
 
       if (!updated) {
