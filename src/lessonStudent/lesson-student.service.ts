@@ -69,7 +69,7 @@ export class LessonStudentService extends BaseCrudService<LessonStudent> {
     return this.lessonStudentModel.find(filters);
   }
   async findOne(filter: any): Promise<LessonStudent | null> {
-    const lessonStudent = await this.lessonStudentModel.findOne(filter).exec();
+    const lessonStudent = await this.lessonStudentModel.findOne(filter).lean();
     if (!lessonStudent) {
       return null;
     }
@@ -86,7 +86,6 @@ export class LessonStudentService extends BaseCrudService<LessonStudent> {
   }) {
     const answers = _.get(lessonStudent, 'answers', []);
     const questions = _.get(lesson, 'questions', []);
-    console.log(resultsES, questions)
     const esResultMap = _.keyBy(resultsES, (es: any) => es.id.toString());
     const questionMap = _.keyBy(questions, (q: any) => q._id?.toString());
     const answersWithResult = answers.map((answer: AnswerDetails) => {
@@ -121,13 +120,10 @@ export class LessonStudentService extends BaseCrudService<LessonStudent> {
 
       return { ...answer, score: 0, evaluate: 'Loại câu hỏi không xác định' };
     });
-    console.log(22222, {
-      ...lessonStudent,
-      answers: answersWithResult,
-    })
     return await super.update({
       ...lessonStudent,
       answers: answersWithResult,
+      status: "ExamGraded"
     });
   }
 }

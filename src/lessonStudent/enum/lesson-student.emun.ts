@@ -1,11 +1,10 @@
 
 import { registerEnumType } from '@nestjs/graphql';
-export enum LessonType {
-    TEXT = 'TEXT',
-    FILE = 'FILE',
-    EXERCISE = "EXERCISE"
+export enum LessonStudentStatus {
+    Submitted = 'Submitted',
+    ExamGraded = 'ExamGraded',
   }
 
-registerEnumType(LessonType, {
-    name: 'LessonType',
+registerEnumType(LessonStudentStatus, {
+    name: 'LessonStudentStatus',
 });

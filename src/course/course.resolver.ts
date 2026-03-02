@@ -27,6 +27,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { UserDocument } from '@/user/schemas/user.schema';
 import { UserRole } from '@/user/models/user.emun';
+import {ObjectId} from "mongodb"
 
 @Resolver(() => Course)
 export class CourseResolver {
@@ -39,10 +40,13 @@ export class CourseResolver {
   @ResolveField(() => [User])
   async students(@Parent() course: Course) {
     const records = await this.courseStudentModel
-      .find({ courseId: course.id })
-      .populate('studentId');
+      .find({ courseId: new ObjectId(course.id) })
+      .populate('studentId')
+      .lean();
 
-    return records.map((r) => r.studentId);
+    return records
+      .map((r: any) => r.studentId)
+      .filter((student) => !!student); 
   }
 
   @UseGuards(GqlAuthGuard)
@@ -53,7 +57,7 @@ export class CourseResolver {
     filter?: CourseFilterInput,
   ) {
     let filters = {} as any;
-    const userId = req.user.userId;
+    const userId = req.user._id;
     const user = await this.userModel.findOne({ _id: userId, deletedAt: null });
     if (user && user.role === ('TEACHER' as UserRole)) {
       filters.teacherId = userId;
@@ -68,15 +72,15 @@ export class CourseResolver {
     @Args('courseId', { type: () => ID }) courseId: string,
   ) {
     const relations = await this.courseStudentModel
-      .find({ courseId })
-      .select('studentId');
+      .find({ courseId: new ObjectId(courseId) })
+      .select('studentId').lean();
 
     const studentIds = relations.map((r) => r.studentId);
 
     return this.userModel.find({
       _id: { $in: studentIds },
       role: 'STUDENT',
-    });
+    }).lean();
   }
 
   @Query(() => Course)
@@ -89,7 +93,7 @@ export class CourseResolver {
     @Args('input') input: CreateCourseInput,
     @Context() { req, res }: GqlContext,
   ) {
-    const userId = req.user.userId;
+    const userId = req.user._id;
     // teacherId
     return this.courseService.create({ ...input, teacherId: userId });
   }

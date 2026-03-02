@@ -7,8 +7,9 @@ export type ChapterDocument = HydratedDocument<Chapter>;
 @ObjectType()
 @Schema(createBaseSchemaOptions())
 export class Chapter {
-  @Field(() => ID)
-  id!: string;
+  // @Field(() => ID)
+  // id!: string;
+  _id!: Types.ObjectId;
 
   @Field({ nullable: true })
   @Prop({ required: true })

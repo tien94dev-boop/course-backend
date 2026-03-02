@@ -45,7 +45,7 @@ export class LessonResolver {
     @Parent() lesson: Lesson,
     @Context() { req, res }: GqlContext,
   ) {
-    const userId = req.user.userId;
+    const userId = req.user._id;
     const user = await this.userModel.findOne({ _id: new ObjectId(userId) });
     if(user?.role === "STUDENT"){
        return this.lessonStudentModel.findOne({
@@ -72,7 +72,7 @@ export class LessonResolver {
     @Args('filter', { type: () => FilterLessonInput, nullable: true })
     filter?: FilterLessonInput,
   ): Promise<Lesson[]> {
-    const userId = req.user.userId;
+    const userId = req.user._id;
     const filters = buildFilter({ ...filter });
     const lessons = await this.lessonService.findAll({ filters });
     return lessons;
@@ -94,7 +94,7 @@ export class LessonResolver {
     @Args('input') input: CreateLessonInput,
   ): Promise<LessonMutationResponse> {
     try {
-      const userId = req.user.userId;
+      const userId = req.user._id;
       const result = await this.lessonService.create({
         ...input,
         teacherId: userId,

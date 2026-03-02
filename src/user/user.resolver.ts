@@ -6,6 +6,8 @@ import {
   ID,
   Subscription,
   Context,
+  Parent,
+  ResolveField
 } from '@nestjs/graphql';
 import { Inject, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -17,7 +19,7 @@ import { PubSub } from 'graphql-subscriptions';
 import { ChangedPayload } from '../common/dto/changed.payload';
 import { GqlAuthGuard } from '@/auth/gql-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { FilterUserInput } from "@/user/dto/filter-user.input"
+import { FilterUserInput } from '@/user/dto/filter-user.input';
 import type { GqlContext } from '@/common/gql-context';
 import { buildFilter } from '@/utils/buildFilter';
 
@@ -27,6 +29,10 @@ export class UserResolver {
     private readonly userService: UserService,
     @Inject('PUB_SUB') private readonly pubSub: PubSub,
   ) {}
+  @ResolveField(() => String)
+  id(@Parent() parent: any) {
+    return parent._id?.toString();
+  }
 
   @Subscription(() => ChangedPayload, { name: 'userChanged' })
   userChanged(
@@ -39,7 +45,7 @@ export class UserResolver {
   @Query(() => User)
   @UseGuards(GqlAuthGuard)
   async me(@CurrentUser() user: any) {
-    return this.userService.findOne(user.userId);
+    return this.userService.findOne(user._id);
   }
 
   @UseGuards(GqlAuthGuard)
@@ -49,11 +55,11 @@ export class UserResolver {
   })
   async allUsers(
     @Context() { req, res }: GqlContext,
-    @Args("filter") filter: FilterUserInput
+    @Args('filter') filter: FilterUserInput,
   ): Promise<User[]> {
-    const userId = req.user.userId;
+    const userId = req.user._id;
     const filters = buildFilter(filter);
-    const users = await this.userService.findAll({filters});
+    const users = await this.userService.findAll({ filters });
     return users;
   }
 

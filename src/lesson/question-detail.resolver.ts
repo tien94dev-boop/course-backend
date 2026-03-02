@@ -5,26 +5,24 @@ import {
 } from '@/ai/models/ai-generate.model';
 import type { GqlContext } from '@/common/gql-context';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '@/user/schemas/user.schema';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { Inject, UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '@/auth/gql-auth.guard';
+import _ from 'lodash';
 
 @Resolver(() => QuestionDetail)
 export class QuestionDetailResolver {
-  constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
- @UseGuards(GqlAuthGuard)
+  @UseGuards(GqlAuthGuard)
   @ResolveField(() => String, { nullable: true })
   async answer(
     @Parent() question: QuestionDetail,
-    @Context() { req }: GqlContext,
+    @Context() { req, res }: GqlContext,
   ) {
-    const userId = req?.user.userId || null;
-    if(!userId){
-        return null
+    const user = _.get(req, ['user'], null);
+    if (!user) {
+      return null;
     }
-    const user = await this.userModel.findOne({ _id: new ObjectId(userId) });
     if (user?.role === 'STUDENT') {
       return null;
     }

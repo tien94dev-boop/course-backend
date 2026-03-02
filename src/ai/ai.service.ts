@@ -24,7 +24,36 @@ export class AiService {
     language = 'vi',
     questionTypes,
   }: AiGenerateInput) {
-    // Gọi đúng model 2.5 mà bạn đang có quyền truy cập
+    return `[
+{
+  "question": "Mục tiêu chính của việc chia sẻ dữ liệu từ Cơ sở dữ liệu quốc gia về bảo hiểm được nêu trong Điều 2 là gì?",
+  "mcOption": [
+    {
+      "choice": "A",
+      "description": "Nâng cao chất lượng dịch vụ bảo hiểm trực tuyến."
+    },
+    {
+      "choice": "B",
+      "description": "Thay thế hoặc cắt giảm thành phần hồ sơ trong các thủ tục hành chính."
+    },
+    {
+      "choice": "C",
+      "description": "Mở rộng khả năng truy cập thông tin cá nhân của người dân."
+    },
+    {
+      "choice": "D",
+      "description": "Thực hiện việc đồng bộ hóa toàn bộ dữ liệu giữa các cơ quan nhà nước."
+    }
+  ],
+  "answer": "B",
+  "questionType": "MC"
+},
+{
+  "question": "Theo Điều 2, việc chia sẻ dữ liệu từ Cơ sở dữ liệu quốc gia về bảo hiểm cần tuân thủ những yêu cầu nào?",
+  "answer": "Việc chia sẻ dữ liệu cần tuân thủ các quy định về bảo mật thông tin, quyền sở hữu trí tuệ liên quan đến dữ liệu, bí mật đời tư; các quy định, hướng dẫn kỹ thuật về trao đổi dữ liệu và các nguyên tắc, quy định về quản lý, kết nối và chia sẻ dữ liệu số giữa các cơ quan thuộc hệ thống chính trị; đồng thời phải phù hợp với Khung kiến trúc Chính phủ điện tử Việt Nam và Khung kiến trúc Chính phủ điện tử Bộ Tài chính.",
+  "questionType": "ES"
+}
+    ]`;
 
     let questionString: string[] = [];
     for (const qt of questionTypes) {
@@ -83,6 +112,7 @@ export class AiService {
           responseMimeType: 'application/json',
         },
       });
+      console.log({ 1111: result.response.text() });
       return result.response.text();
     } catch (error) {
       console.error('Lỗi khi gọi Gemini 2.5:', error);
@@ -99,8 +129,6 @@ export class AiService {
     if (!lessonStudent || !lesson) {
       return;
     }
-    console.log(11111,  lessonStudent,
-    lesson,)
     const { answers } = lessonStudent;
     const { questions } = lesson;
     const ESQuestions = (questions || []).filter(
@@ -108,11 +136,11 @@ export class AiService {
     );
     const promtESQuestions = ESQuestions.map((question: QuestionDetail) => {
       const studentAnswerObject = answers?.find((answer: AnswerDetails) => {
-        return answer.questionId.toString() === question.id?.toString();
+        return answer.questionId.toString() === question._id?.toString();
       });
       if (studentAnswerObject) {
         return {
-          id: question.id,
+          id: question._id,
           studentAnswer: stripHtmlToText(
             studentAnswerObject.studentAnswer.toString(),
           ),
@@ -120,18 +148,18 @@ export class AiService {
         };
       } else {
         return {
-          id: question.id,
+          id: question._id,
           answer: stripHtmlToText(question.answer),
         };
       }
     });
-    return `[
-{
-  "id": "69a1b7079409a3a0b841ebb2",
-  "score": 20,
-  "evaluate": "Câu trả lời chưa làm rõ bản chất và định nghĩa của vấn đề."
-}
-    ]`
+    //     return `[
+    // {
+    //   "id": "69a1b7079409a3a0b841ebb2",
+    //   "score": 20,
+    //   "evaluate": "Câu trả lời chưa làm rõ bản chất và định nghĩa của vấn đề."
+    // }
+    //     ]`
     if (promtESQuestions.length <= 0) return null;
     const model = this.genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',

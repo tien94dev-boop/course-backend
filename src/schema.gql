@@ -12,12 +12,12 @@ type Course {
 }
 
 type User {
-  id: ID!
   name: String!
   code: String!
   email: String!
   dateOfBirth: DateTime!
   role: String!
+  id: String!
 }
 
 """
@@ -46,17 +46,17 @@ type ClassGroup {
 }
 
 type MCOption {
-  id: ID!
   choice: String
   description: String
+  id: String!
 }
 
 type QuestionDetail {
-  id: ID!
   question: String!
   answer: String
   mcOptions: [MCOption!]
   questionType: QuestionType!
+  id: String!
 }
 
 enum QuestionType {
@@ -85,12 +85,12 @@ The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://
 scalar JSON
 
 type Chapter {
-  id: ID!
   title: String
   description: String
   courseId: ID!
   teacherId: ID!
   order: Int
+  id: String!
 }
 
 type ChapterMutationResponse {
@@ -118,6 +118,12 @@ type LessonStudent {
   answers: [AnswerDetails!]
   studentId: ID
   lessonId: ID
+  status: LessonStudentStatus
+}
+
+enum LessonStudentStatus {
+  Submitted
+  ExamGraded
 }
 
 type Lesson {

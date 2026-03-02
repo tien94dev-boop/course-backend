@@ -8,8 +8,9 @@ import { createBaseSchemaOptions } from '@/common/base-schema-options';
 @ObjectType()
 export class MCOption {
   _id!: Types.ObjectId;
-  @Field(() => ID)
-  id?: Types.ObjectId;
+  
+  // @Field(() => ID)
+  // id?: Types.ObjectId;
 
   @Field({ nullable: true })
   @Prop({ required: true })
@@ -26,8 +27,9 @@ export const MCOptionSchema = SchemaFactory.createForClass(MCOption);
 @ObjectType()
 export class QuestionDetail {
   _id!: Types.ObjectId;
-  @Field(() => ID)
-  id?: Types.ObjectId;
+
+  // @Field(() => ID)
+  // id?: Types.ObjectId;
 
   @Field()
   @Prop({ required: true })

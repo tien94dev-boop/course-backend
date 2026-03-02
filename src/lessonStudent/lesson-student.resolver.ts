@@ -27,6 +27,16 @@ import { Lesson, LessonDocument } from '@/lesson/schemas/lesson.schema';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { AiService } from '@/ai/ai.service';
+import { AnswerDetails } from './schemas/lesson-student.schema';
+
+@Resolver(() => AnswerDetails)
+export class AnswerDetailsResolver {
+
+  @ResolveField(() => String)
+  id(@Parent() parent: any) {
+    return parent._id?.toString();
+  }
+}
 
 @Resolver(() => LessonStudent)
 export class LessonStudentResolver {
@@ -37,6 +47,10 @@ export class LessonStudentResolver {
     @InjectModel(Lesson.name) private lessonModel: Model<LessonDocument>,
     @Inject('PUB_SUB') private readonly pubSub: PubSub,
   ) {}
+  @ResolveField(() => String)
+  id(@Parent() lessonStudent: any) {
+    return lessonStudent._id?.toString();
+  }
   @Subscription(() => ChangedPayload, { name: 'lessonStudentChanged' })
   lessonStudentChanged(
     @Args('operation', { type: () => String, nullable: true })
@@ -54,7 +68,7 @@ export class LessonStudentResolver {
     @Args('filter', { type: () => FilterLessonStudentInput, nullable: true })
     filter?: FilterLessonStudentInput,
   ): Promise<LessonStudent[]> {
-    const userId = req.user.userId;
+    const userId = req.user._id;
     const filters = buildFilter({ ...filter, studentId: userId });
     const lessons = await this.lessonStudentService.findAll({ filters });
     return lessons;
@@ -78,7 +92,7 @@ export class LessonStudentResolver {
     @Args('input') input: CreateLessonStudentInput,
   ): Promise<LessonStudentMutationResponse> {
     try {
-      const userId = req.user.userId;
+      const userId = req.user._id;
       const user = await this.userModel.findOne({ _id: new ObjectId(userId) });
       if (user?.role !== 'STUDENT') {
         return {
@@ -91,25 +105,26 @@ export class LessonStudentResolver {
         studentId: new ObjectId(userId),
         lessonId: new ObjectId(lessonId),
       });
-      console.log(33333, {...currentStudentAnswer})
       let result: any;
       if (currentStudentAnswer) {
         const { answers } = input;
-        console.log({ currentStudentAnswer });
         result = await this.lessonStudentService.update({
           answers: answers,
           id: currentStudentAnswer._id,
+          status: "Submitted"
         });
       } else {
         result = await this.lessonStudentService.create({
           ...input,
           studentId: userId,
+          status: "Submitted"
         });
       }
-
-      const currentLesson = await this.lessonModel.findOne({
-        _id: new ObjectId(input.lessonId),
-      });
+      const currentLesson = await this.lessonModel
+        .findOne({
+          _id: new ObjectId(input.lessonId),
+        })
+        .lean();
       const rs = await this.aiService.assignmentGradingUsingAI({
         lessonStudent: result.data,
         lesson: currentLesson,
@@ -122,7 +137,6 @@ export class LessonStudentResolver {
           resultsES: JSON.parse(rs),
         });
       }
-      console.log({ result });
       return result;
     } catch (error) {
       return {

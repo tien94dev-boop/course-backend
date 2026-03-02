@@ -39,7 +39,7 @@ export class AuthResolver {
   @UseGuards(GqlAuthGuard)
   @Mutation(() => LogoutResponse)
   async logout(@Context() { req, res }: GqlContext) {
-    const userId = req.user.userId;
+    const userId = req.user._id;
 
     // 1. Xoá refresh token trong DB
     await this.authService.logout(userId);

@@ -6,6 +6,8 @@ import {
   ID,
   Subscription,
   Context,
+  ResolveField,
+  Parent,
 } from '@nestjs/graphql';
 import { ChapterService } from './chapter.service';
 import { Chapter } from './schemas/chapter.schema';
@@ -27,8 +29,9 @@ import { User, UserDocument } from '@/user/schemas/user.schema';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';
+import _ from 'lodash';
 
-@Resolver()
+@Resolver(() => Chapter)
 export class ChapterResolver {
   constructor(
     private readonly chapterService: ChapterService,
@@ -37,6 +40,10 @@ export class ChapterResolver {
     @InjectModel('User') private userModel: Model<UserDocument>,
     @Inject('PUB_SUB') private readonly pubSub: PubSub,
   ) {}
+  @ResolveField(() => String)
+  id(@Parent() parent: any) {
+    return parent._id?.toString();
+  }
   @Subscription(() => ChangedPayload, { name: 'chapterChanged' })
   chapterChanged(
     @Args('operation', { type: () => String, nullable: true })
@@ -54,22 +61,21 @@ export class ChapterResolver {
     @Args('filter', { type: () => FilterChapterInput, nullable: true })
     filter: FilterChapterInput,
   ): Promise<Chapter[]> {
-    const userId = req.user.userId;
-    const user = await this.userModel.findOne({ _id: new ObjectId(userId) });
+    const user = _.get(req, 'user', null);
     if (!user) {
       return [];
     }
+    const { _id: userId, role } = user;
     let filters = {};
-    if (user.role === 'TEACHER') {
+    if (role === 'TEACHER') {
       filters = buildFilter({ ...filter, teacherId: userId });
       const chapters = await this.chapterService.findAll({ filters });
       return chapters;
     }
-    if (user.role === 'STUDENT') {
+    if (role === 'STUDENT') {
       const { courseId } = filter;
-      const courseStudents = await this.courseStudentModel.find({
-        courseId: courseId,
-      });
+      const courseStudentFilter = buildFilter({ courseId })
+      const courseStudents = await this.courseStudentModel.find(courseStudentFilter);
       if (courseStudents.length === 0) {
         return [];
       }
@@ -104,7 +110,7 @@ export class ChapterResolver {
     @Context() { req, res }: GqlContext,
     @Args('input') input: CreateChapterInput,
   ): Promise<ChapterMutationResponse> {
-    const userId = req.user.userId;
+    const userId = req.user._id;
     const rs = await this.chapterService.create({
       ...input,
       teacherId: userId,

@@ -28,18 +28,19 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
       const castInput = castObjectIdsInObject(input);
       const doc = new this.model(castInput);
       const saved = await doc.save();
+
       const trigger = this.getChangedTrigger();
       this.pubSub.publish(trigger, {
         [`${this.entityName}Changed`]: {
           operation: 'CREATE',
-          data: saved as T,
+          data: saved.toObject(),
         },
       });
 
       return {
         success: true,
         message: `${this.entityName} đã được tạo thành công`,
-        data: saved as T,
+        data: saved.toObject(),
       };
     } catch (error: any) {
       if (error.code === 11000) {
@@ -71,9 +72,7 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
 
       const castRest = castObjectIdsInObject(rest);
       const updated = await this.model
-        .findByIdAndUpdate(id || _id, castRest, { new: true, runValidators: true })
-        .exec();
-
+        .findByIdAndUpdate(id || _id, castRest, { new: true, runValidators: true }).lean();
       if (!updated) {
         return {
           success: false,
@@ -86,7 +85,7 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
       this.pubSub.publish(trigger, {
         [`${this.entityName}Changed`]: {
           operation: 'UPDATE',
-          data: updated as T,
+          data: updated,
         },
       });
 
@@ -120,7 +119,7 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
           { deletedAt: new Date() },
           { new: true, runValidators: true },
         )
-        .exec();
+        .lean();
 
       if (!updated) {
         return {
@@ -134,7 +133,7 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
       this.pubSub.publish(trigger, {
         [`${this.entityName}Changed`]: {
           operation: 'DELETE', // hoặc 'SOFT_DELETE' nếu bạn muốn phân biệt
-          data: updated as T,
+          data: updated,
         },
       });
 

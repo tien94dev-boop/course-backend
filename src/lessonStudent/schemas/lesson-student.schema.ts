@@ -2,12 +2,12 @@ import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { createBaseSchemaOptions } from '@/common/base-schema-options';
-import { LessonType } from '../enum/lesson-student.emun';
+import { LessonStudentStatus } from '../enum/lesson-student.emun';
 
 @ObjectType()
 @Schema(createBaseSchemaOptions({ timestamps: false }))
 export class AnswerDetails {
-_id!: Types.ObjectId;
+  _id!: Types.ObjectId;
 
   @Field(() => ID)
   id!: Types.ObjectId;
@@ -35,7 +35,7 @@ export type LessonStudentDocument = HydratedDocument<LessonStudent>;
 @ObjectType()
 @Schema(createBaseSchemaOptions())
 export class LessonStudent {
-_id!: Types.ObjectId;
+  _id!: Types.ObjectId;
 
   @Field(() => ID)
   id!: Types.ObjectId;
@@ -51,6 +51,10 @@ _id!: Types.ObjectId;
   @Field(() => ID, { nullable: true })
   @Prop({ type: Types.ObjectId, required: true })
   lessonId!: Types.ObjectId;
+
+  @Field(() => LessonStudentStatus, { nullable: true })
+  @Prop({ enum: LessonStudentStatus, required: false })
+  status?: LessonStudentStatus;
 }
 
 export const LessonStudentSchema = SchemaFactory.createForClass(LessonStudent);

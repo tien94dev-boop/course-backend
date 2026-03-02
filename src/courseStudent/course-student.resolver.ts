@@ -19,10 +19,12 @@ export class CourseStudentResolver {
   ): Promise<CourseStudentMutationResponse> {
     const { courseId } = input;
     try {
-      const userId = req.user.userId;
+      const userId = req.user._id;
+      const role = req.user.role
       return this.courseStudentService.registerCourse({
         studentId: userId,
         courseId,
+        role
       });
     } catch (err: any) {
       return {

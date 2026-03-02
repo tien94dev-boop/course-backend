@@ -7,8 +7,6 @@ import {
   IsUppercase,
   Length,
 } from 'class-validator';
-import { LessonType } from '../enum/lesson-student.emun';
-import { QuestionType } from '@/ai/dto/ai-generate.input';
 
 @InputType()
 export class CreateLessonStudentInput {

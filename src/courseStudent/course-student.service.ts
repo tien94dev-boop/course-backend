@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, Inject } from '@nestjs/common';
+import { Injectable, BadRequestException, Inject, UseGuards } from '@nestjs/common';
 import { GraphQLError } from 'graphql';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -12,6 +12,12 @@ import {
   CrudResponse,
 } from '@/common/services/base-crud.service';
 import { PubSub } from 'graphql-subscriptions';
+import { ObjectId } from "mongodb"
+import { GqlAuthGuard } from '@/auth/gql-auth.guard';
+import {
+  Context,
+} from '@nestjs/graphql';
+import { UserRole } from '@/user/models/user.emun';
 
 @Injectable()
 export class CourseStudentService extends BaseCrudService<CourseStudentDocument> {
@@ -24,19 +30,22 @@ export class CourseStudentService extends BaseCrudService<CourseStudentDocument>
   ) {
     super(courseStudentModel, pubSub, 'lesson');
   }
+
+  @UseGuards(GqlAuthGuard)
   async registerCourse({
     studentId,
     courseId,
+    role
   }: {
     studentId: string;
     courseId: string;
+    role: UserRole
   }): Promise<CrudResponse<CourseStudentDocument>> {
     const existed = await this.courseStudentModel.findOne({
-      studentId,
-      courseId,
+      studentId: new ObjectId(studentId),
+      courseId: new ObjectId(courseId),
     });
-    const user = await this.userModel.findById(studentId);
-    if (user?.role === 'TEACHER') {
+    if (role === 'TEACHER') {
       return {
         success: false,
         message: 'Giáo viên không cần phải đăng kí',
@@ -53,8 +62,8 @@ export class CourseStudentService extends BaseCrudService<CourseStudentDocument>
 
     try {
       await this.courseStudentModel.create({
-        studentId,
-        courseId,
+        studentId: new ObjectId(studentId),
+        courseId: new ObjectId(courseId),
       });
       return {
         success: true,
