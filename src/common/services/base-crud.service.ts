@@ -28,19 +28,20 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
       const castInput = castObjectIdsInObject(input);
       const doc = new this.model(castInput);
       const saved = await doc.save();
+      console.log(saved)
 
       const trigger = this.getChangedTrigger();
       this.pubSub.publish(trigger, {
         [`${this.entityName}Changed`]: {
           operation: 'CREATE',
-          data: saved.toObject(),
+          data: saved.toObject({ virtuals: true })
         },
       });
 
       return {
         success: true,
         message: `${this.entityName} đã được tạo thành công`,
-        data: saved.toObject(),
+        data: saved.toObject({ virtuals: true }) as any as T,
       };
     } catch (error: any) {
       if (error.code === 11000) {
