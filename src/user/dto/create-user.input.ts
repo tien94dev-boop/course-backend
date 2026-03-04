@@ -35,4 +35,7 @@ export class CreateUserInput {
   @IsDateString({}, { message: 'Ngày sinh phải là định dạng ngày (ISO 8601)' })
   @IsNotEmpty({ message: 'Ngày sinh không được để trống' })
   readonly dateOfBirth!: string;
+
+  @Field(()=>UserRole)
+  readonly role!: UserRole
 }

@@ -319,6 +319,7 @@ input CreateUserInput {
   email: String!
   password: String!
   dateOfBirth: String!
+  role: UserRole!
 }
 
 input UpdateUserInput {
@@ -327,6 +328,7 @@ input UpdateUserInput {
   email: String
   password: String
   dateOfBirth: String
+  role: UserRole
   id: ID!
 }
 
