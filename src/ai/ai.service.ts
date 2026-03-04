@@ -24,37 +24,6 @@ export class AiService {
     language = 'vi',
     questionTypes,
   }: AiGenerateInput) {
-    return `[
-{
-  "question": "Mục tiêu chính của việc chia sẻ dữ liệu từ Cơ sở dữ liệu quốc gia về bảo hiểm được nêu trong Điều 2 là gì?",
-  "mcOption": [
-    {
-      "choice": "A",
-      "description": "Nâng cao chất lượng dịch vụ bảo hiểm trực tuyến."
-    },
-    {
-      "choice": "B",
-      "description": "Thay thế hoặc cắt giảm thành phần hồ sơ trong các thủ tục hành chính."
-    },
-    {
-      "choice": "C",
-      "description": "Mở rộng khả năng truy cập thông tin cá nhân của người dân."
-    },
-    {
-      "choice": "D",
-      "description": "Thực hiện việc đồng bộ hóa toàn bộ dữ liệu giữa các cơ quan nhà nước."
-    }
-  ],
-  "answer": "B",
-  "questionType": "MC"
-},
-{
-  "question": "Theo Điều 2, việc chia sẻ dữ liệu từ Cơ sở dữ liệu quốc gia về bảo hiểm cần tuân thủ những yêu cầu nào?",
-  "answer": "Việc chia sẻ dữ liệu cần tuân thủ các quy định về bảo mật thông tin, quyền sở hữu trí tuệ liên quan đến dữ liệu, bí mật đời tư; các quy định, hướng dẫn kỹ thuật về trao đổi dữ liệu và các nguyên tắc, quy định về quản lý, kết nối và chia sẻ dữ liệu số giữa các cơ quan thuộc hệ thống chính trị; đồng thời phải phù hợp với Khung kiến trúc Chính phủ điện tử Việt Nam và Khung kiến trúc Chính phủ điện tử Bộ Tài chính.",
-  "questionType": "ES"
-}
-    ]`;
-
     let questionString: string[] = [];
     for (const qt of questionTypes) {
       const { type, numberOfQuestions } = qt;
