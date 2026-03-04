@@ -17,13 +17,12 @@ export class AuthResolver {
     @Args('input') input: LoginInput,
     @Context() context: GqlContext,
   ) {
-    const { accessToken, refreshToken, user, success, message } =
-      await this.authService.login(input);
-
+    const { accessToken, refreshToken, user, success, message } = await this.authService.login(input);
+    const isProd = process.env.NODE_ENV === 'PRODUCTION';
     context.res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
