@@ -29,6 +29,7 @@ import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from '@/user/schemas/user.schema';
 import { ObjectId } from 'mongodb';
+import { LessonLink } from './models/lessonLink.model';
 
 @Resolver(() => Lesson)
 export class LessonResolver {
@@ -47,13 +48,13 @@ export class LessonResolver {
   ) {
     const userId = req.user._id;
     const user = await this.userModel.findOne({ _id: new ObjectId(userId) });
-    if(user?.role === "STUDENT"){
-       return this.lessonStudentModel.findOne({
-      lessonId: new ObjectId(lesson.id),
-      studentId: new ObjectId(user._id)
-    });
+    if (user?.role === 'STUDENT') {
+      return this.lessonStudentModel.findOne({
+        lessonId: new ObjectId(lesson.id),
+        studentId: new ObjectId(user._id),
+      });
     }
-    return null
+    return null;
   }
   @Subscription(() => ChangedPayload, { name: 'lessonChanged' })
   lessonChanged(
@@ -94,6 +95,7 @@ export class LessonResolver {
     @Args('input') input: CreateLessonInput,
   ): Promise<LessonMutationResponse> {
     try {
+      console.log({ input });
       const userId = req.user._id;
       const result = await this.lessonService.create({
         ...input,
@@ -145,5 +147,14 @@ export class LessonResolver {
           : 'Đã có lỗi xảy ra khi xóa bài học',
       );
     }
+  }
+}
+
+
+@Resolver(() => LessonLink)
+export class LessonLinkResolver {
+  @ResolveField(() => String)
+  id(@Parent() parent: any) {
+    return parent._id?.toString();
   }
 }

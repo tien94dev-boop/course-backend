@@ -28,7 +28,6 @@ export abstract class BaseCrudService<T extends HydratedDocument<any>> {
       const castInput = castObjectIdsInObject(input);
       const doc = new this.model(castInput);
       const saved = await doc.save();
-      console.log(saved)
 
       const trigger = this.getChangedTrigger();
       this.pubSub.publish(trigger, {

@@ -2,8 +2,8 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { LessonService } from './lesson.service';
-import { LessonResolver } from './lesson.resolver';
-import { Lesson, LessonSchema } from './schemas/lesson.schema';
+import { LessonResolver, LessonLinkResolver } from './lesson.resolver';
+import { Lesson, LessonSchema,  } from './schemas/lesson.schema';
 import {QuestionDetailResolver} from "./question-detail.resolver"
 import { User, UserSchema } from "@/user/schemas/user.schema"
 import { LessonStudent, LessonStudentSchema } from '@/lessonStudent/schemas/lesson-student.schema';
@@ -19,7 +19,8 @@ import { LessonStudent, LessonStudentSchema } from '@/lessonStudent/schemas/less
   providers: [
     LessonService, 
     LessonResolver,
-    QuestionDetailResolver
+    QuestionDetailResolver,
+    LessonLinkResolver,
   ],
   exports: [
     LessonService

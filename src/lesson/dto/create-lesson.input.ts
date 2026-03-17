@@ -46,6 +46,9 @@ export class CreateLessonInput {
 
   @Field(()=>[QuestionTypeObjectInput], { nullable: true })
   questionTypeObjects?: QuestionTypeObjectInput[]
+
+  @Field(()=>[LessonLinkInput], { nullable: true })
+  lessonLinks?: LessonLinkInput[]
 }
 
 @InputType()
@@ -78,4 +81,13 @@ export class QuestionTypeObjectInput {
 
   @Field({ nullable: true })
   numberOfQuestions!: number;
+}
+
+@InputType()
+export class LessonLinkInput {
+  @Field({ nullable: true })
+  name!: string;
+
+  @Field({ nullable: true })
+  link!: string;
 }

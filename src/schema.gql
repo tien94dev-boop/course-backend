@@ -126,6 +126,12 @@ enum LessonStudentStatus {
   ExamGraded
 }
 
+type LessonLink {
+  name: String!
+  link: String!
+  id: String!
+}
+
 type Lesson {
   id: ID!
   questions: [QuestionDetail!]
@@ -137,6 +143,7 @@ type Lesson {
   type: LessonType!
   questionTypeObjects: [QuestionTypeObject!]
   link: String
+  lessonLinks: [LessonLink!]!
   lessonStudent: LessonStudent
 }
 
@@ -355,6 +362,7 @@ input CreateLessonInput {
   link: String
   questions: [QuestionDetailInput!]
   questionTypeObjects: [QuestionTypeObjectInput!]
+  lessonLinks: [LessonLinkInput!]
 }
 
 input QuestionDetailInput {
@@ -374,6 +382,11 @@ input QuestionTypeObjectInput {
   numberOfQuestions: Float
 }
 
+input LessonLinkInput {
+  name: String
+  link: String
+}
+
 input UpdateLessonInput {
   title: String
   description: String
@@ -384,6 +397,7 @@ input UpdateLessonInput {
   link: String
   questions: [QuestionDetailInput!]
   questionTypeObjects: [QuestionTypeObjectInput!]
+  lessonLinks: [LessonLinkInput!]
   id: ID!
 }
 

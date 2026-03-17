@@ -28,7 +28,7 @@ export class LessonService extends BaseCrudService<LessonDocument> {
     input: any,
   ): Promise<CrudResponse<LessonDocument>> {
     try {
-      console.log(input.questions)
+      
       const created = await super.create(input);
       return created;
     } catch (error: any) {

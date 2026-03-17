@@ -2,10 +2,14 @@ import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { createBaseSchemaOptions } from '@/common/base-schema-options';
-import { QuestionDetail, QuestionDetailSchema } from '@/ai/models/ai-generate.model';
+import {
+  QuestionDetail,
+  QuestionDetailSchema,
+} from '@/ai/models/ai-generate.model';
 import { LessonType } from '../enum/lesson.emun';
 import { QuestionTypeObject } from '../models/questionTypeObject.model';
 import { LessonStudent } from '@/lessonStudent/schemas/lesson-student.schema';
+import { LessonLink, LessonLinkSchema } from '../models/lessonLink.model';
 
 export type LessonDocument = HydratedDocument<Lesson>;
 @ObjectType()
@@ -25,7 +29,6 @@ export class Lesson {
   @Field({ nullable: true })
   @Prop({ required: false })
   description?: string;
-
 
   @Field({ nullable: true })
   @Prop({ required: true })
@@ -51,8 +54,12 @@ export class Lesson {
   @Prop({ required: false })
   link?: string;
 
-  @Field(()=>LessonStudent, {nullable: true})
-  lessonStudent?: LessonStudent
+  @Field(() => [LessonLink])
+  @Prop({ type: [LessonLinkSchema], default: [] })
+  lessonLinks?: LessonLink[];
+
+  @Field(() => LessonStudent, { nullable: true })
+  lessonStudent?: LessonStudent;
 }
 
 export const LessonSchema = SchemaFactory.createForClass(Lesson);
